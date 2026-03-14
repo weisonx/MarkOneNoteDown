@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MarkOneNoteDown.Core;
@@ -55,5 +57,82 @@ public sealed class ExportPipeline
         }
 
         return new ExportResult(completed, exportedAssets);
+    }
+}
+
+public sealed class FileSystemExportWriter : IExportWriter
+{
+    private readonly string assetsFolderName;
+
+    public FileSystemExportWriter(string assetsFolderName = "_assets")
+    {
+        this.assetsFolderName = string.IsNullOrWhiteSpace(assetsFolderName) ? "_assets" : assetsFolderName.Trim();
+    }
+
+    public async Task WriteAsync(MarkdownPage page, ExportOptions options, CancellationToken cancellationToken)
+    {
+        if (page is null)
+        {
+            throw new ArgumentNullException(nameof(page));
+        }
+
+        if (options is null)
+        {
+            throw new ArgumentNullException(nameof(options));
+        }
+
+        string outputDirectory = options.OutputDirectory;
+        if (string.IsNullOrWhiteSpace(outputDirectory))
+        {
+            throw new InvalidOperationException("Output directory is required.");
+        }
+
+        Directory.CreateDirectory(outputDirectory);
+
+        string safeTitle = MakeSafeFileName(page.Title);
+        string path = EnsureUniquePath(Path.Combine(outputDirectory, safeTitle + ".md"));
+
+        await File.WriteAllTextAsync(path, page.Markdown, new UTF8Encoding(false), cancellationToken);
+    }
+
+    private static string MakeSafeFileName(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return "Untitled";
+        }
+
+        char[] invalid = Path.GetInvalidFileNameChars();
+        var builder = new StringBuilder(input.Length);
+        foreach (char ch in input)
+        {
+            builder.Append(invalid.Contains(ch) ? '_' : ch);
+        }
+
+        string result = builder.ToString().Trim();
+        return string.IsNullOrWhiteSpace(result) ? "Untitled" : result;
+    }
+
+    private static string EnsureUniquePath(string path)
+    {
+        if (!File.Exists(path))
+        {
+            return path;
+        }
+
+        string directory = Path.GetDirectoryName(path) ?? string.Empty;
+        string fileName = Path.GetFileNameWithoutExtension(path);
+        string extension = Path.GetExtension(path);
+
+        for (int i = 1; i < 1000; i++)
+        {
+            string candidate = Path.Combine(directory, $"{fileName} ({i}){extension}");
+            if (!File.Exists(candidate))
+            {
+                return candidate;
+            }
+        }
+
+        return Path.Combine(directory, $"{fileName} ({Guid.NewGuid():N}){extension}");
     }
 }

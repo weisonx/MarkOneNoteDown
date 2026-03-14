@@ -7,7 +7,7 @@ namespace MarkOneNoteDown.App;
 
 public partial class App : Application
 {
-    private Window? window;
+    public static Window? MainWindow { get; private set; }
 
     public App()
     {
@@ -16,18 +16,18 @@ public partial class App : Application
 
     protected override void OnLaunched(LaunchActivatedEventArgs e)
     {
-        window ??= new Window();
-        window.Title = "MarkOneNoteDown";
+        MainWindow ??= new Window();
+        MainWindow.Title = "MarkOneNoteDown";
 
-        if (window.Content is not Frame rootFrame)
+        if (MainWindow.Content is not Frame rootFrame)
         {
             rootFrame = new Frame();
             rootFrame.NavigationFailed += OnNavigationFailed;
-            window.Content = rootFrame;
+            MainWindow.Content = rootFrame;
         }
 
         _ = rootFrame.Navigate(typeof(MainPage), e.Arguments);
-        window.Activate();
+        MainWindow.Activate();
     }
 
     private static void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
