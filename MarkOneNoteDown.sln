@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{BF46459F-AF2D-4BFA-86B0-DD4567D50E1F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkOneNoteDown.App", "src\MarkOneNoteDown.App\MarkOneNoteDown.App.csproj", "{72DE6475-60F8-4AE5-9073-6FF06826EC5B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkOneNoteDown.Core", "src\MarkOneNoteDown.Core\MarkOneNoteDown.Core.csproj", "{1FE47B4E-1DB6-4968-A564-273DD68CF6B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkOneNoteDown.OneNote", "src\MarkOneNoteDown.OneNote\MarkOneNoteDown.OneNote.csproj", "{E98BB271-5F34-40A8-9F31-701F6FBA49D5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkOneNoteDown.Export", "src\MarkOneNoteDown.Export\MarkOneNoteDown.Export.csproj", "{C9985BD4-DD9A-4666-8F1F-1E469AC211E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkOneNoteDown.Tests", "src\MarkOneNoteDown.Tests\MarkOneNoteDown.Tests.csproj", "{20BF3210-D7E6-4A89-9AE9-291CC182604E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{72DE6475-60F8-4AE5-9073-6FF06826EC5B}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{72DE6475-60F8-4AE5-9073-6FF06826EC5B}.Debug|Any CPU.Build.0 = Debug|x86
+		{72DE6475-60F8-4AE5-9073-6FF06826EC5B}.Release|Any CPU.ActiveCfg = Release|x86
+		{72DE6475-60F8-4AE5-9073-6FF06826EC5B}.Release|Any CPU.Build.0 = Release|x86
+		{1FE47B4E-1DB6-4968-A564-273DD68CF6B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FE47B4E-1DB6-4968-A564-273DD68CF6B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FE47B4E-1DB6-4968-A564-273DD68CF6B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FE47B4E-1DB6-4968-A564-273DD68CF6B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E98BB271-5F34-40A8-9F31-701F6FBA49D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E98BB271-5F34-40A8-9F31-701F6FBA49D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E98BB271-5F34-40A8-9F31-701F6FBA49D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E98BB271-5F34-40A8-9F31-701F6FBA49D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9985BD4-DD9A-4666-8F1F-1E469AC211E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9985BD4-DD9A-4666-8F1F-1E469AC211E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9985BD4-DD9A-4666-8F1F-1E469AC211E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9985BD4-DD9A-4666-8F1F-1E469AC211E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20BF3210-D7E6-4A89-9AE9-291CC182604E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20BF3210-D7E6-4A89-9AE9-291CC182604E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20BF3210-D7E6-4A89-9AE9-291CC182604E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20BF3210-D7E6-4A89-9AE9-291CC182604E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{72DE6475-60F8-4AE5-9073-6FF06826EC5B} = {BF46459F-AF2D-4BFA-86B0-DD4567D50E1F}
+		{1FE47B4E-1DB6-4968-A564-273DD68CF6B5} = {BF46459F-AF2D-4BFA-86B0-DD4567D50E1F}
+		{E98BB271-5F34-40A8-9F31-701F6FBA49D5} = {BF46459F-AF2D-4BFA-86B0-DD4567D50E1F}
+		{C9985BD4-DD9A-4666-8F1F-1E469AC211E8} = {BF46459F-AF2D-4BFA-86B0-DD4567D50E1F}
+		{20BF3210-D7E6-4A89-9AE9-291CC182604E} = {BF46459F-AF2D-4BFA-86B0-DD4567D50E1F}
+	EndGlobalSection
+EndGlobal

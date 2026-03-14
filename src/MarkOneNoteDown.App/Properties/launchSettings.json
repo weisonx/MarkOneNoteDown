@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "MarkOneNoteDown.App (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "MarkOneNoteDown.App (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
