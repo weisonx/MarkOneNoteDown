@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
@@ -9,9 +10,12 @@ public partial class App : Application
 {
     public static Window? MainWindow { get; private set; }
 
+    public static AppSettings Settings { get; private set; } = new();
+
     public App()
     {
         InitializeComponent();
+        LoadSettings();
     }
 
     protected override void OnLaunched(LaunchActivatedEventArgs e)
@@ -32,4 +36,16 @@ public partial class App : Application
 
     private static void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
         => throw new InvalidOperationException($"Failed to load Page {e.SourcePageType.FullName}");
+
+    private static void LoadSettings()
+    {
+        IConfigurationRoot config = new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+            .Build();
+
+        var settings = new AppSettings();
+        config.Bind(settings);
+        Settings = settings;
+    }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -67,12 +68,33 @@ public sealed class BasicPageParser : IPageParser
         {
             XDocument doc = XDocument.Parse(rawContent);
             XNamespace ns = doc.Root?.Name.Namespace ?? string.Empty;
-            IEnumerable<string> texts = doc.Descendants(ns + "T")
-                .Select(node => node.Value)
-                .Where(value => !string.IsNullOrWhiteSpace(value))
-                .Select(value => value.Trim());
 
-            return string.Join(Environment.NewLine, texts);
+            var builder = new StringBuilder();
+            foreach (XElement outline in doc.Descendants(ns + "Outline"))
+            {
+                foreach (XElement element in outline.Descendants(ns + "OE"))
+                {
+                    IEnumerable<string> texts = element.Descendants(ns + "T")
+                        .Select(node => node.Value)
+                        .Where(value => !string.IsNullOrWhiteSpace(value))
+                        .Select(value => value.Trim());
+
+                    string paragraph = string.Join(" ", texts);
+                    if (string.IsNullOrWhiteSpace(paragraph))
+                    {
+                        continue;
+                    }
+
+                    if (builder.Length > 0)
+                    {
+                        builder.AppendLine();
+                    }
+
+                    builder.AppendLine(paragraph);
+                }
+            }
+
+            return builder.ToString().TrimEnd();
         }
         catch
         {

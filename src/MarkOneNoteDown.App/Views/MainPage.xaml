@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:MarkOneNoteDown.App"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    RequestedTheme="Light"
     Background="{StaticResource PageBackgroundBrush}"
     mc:Ignorable="d">
     <Grid Padding="24" RowSpacing="16" ColumnSpacing="16">
@@ -37,10 +38,14 @@
                           DisplayMemberPath="Name"
                           Height="120"
                           SelectionChanged="OnSectionSelectionChanged" />
-                <TextBlock Text="Pages" />
-                <ListView x:Name="PagesList" DisplayMemberPath="Name" Height="120" />
+                <TextBlock Text="Pages (Ctrl/Shift to multi-select)" />
+                <ListView x:Name="PagesList"
+                          DisplayMemberPath="Name"
+                          Height="120"
+                          SelectionMode="Multiple" />
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <Button Click="OnRefreshClicked" Content="Refresh" Style="{StaticResource SecondaryAction}" />
+                    <Button Click="OnDiagnosticsClicked" Content="Diagnostics" Style="{StaticResource SecondaryAction}" />
                 </StackPanel>
             </StackPanel>
         </Border>

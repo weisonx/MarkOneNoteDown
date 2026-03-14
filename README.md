@@ -77,6 +77,35 @@ dotnet build MarkOneNoteDown.sln
 - 选择 `MarkOneNoteDown.App` 为启动项目
 - 直接运行（F5）
 
+## 导出说明（当前实现）
+
+- 页面支持多选导出（在 Pages 列表中按住 Ctrl/Shift）。
+- 若未选中任何页面，则默认导出当前已加载的全部页面。
+- Markdown 为基础文本抽取版本（后续会扩展标题/列表/表格/图片映射）。
+
+## OneNote 来源过滤（可选）
+
+可在 `appsettings.json` 中配置过滤范围：
+
+```json
+{
+  "NotebookId": "",
+  "SectionId": ""
+}
+```
+
+- `NotebookId` 非空时，仅加载匹配该 ID 的笔记本。
+- `SectionId` 非空时，仅加载匹配该 ID 的分区。
+- 留空表示不过滤。
+
+## OneNote 诊断
+
+点击主界面的 `Diagnostics` 按钮可以检查：
+
+- 是否能创建 OneNote COM
+- OneNote 版本号
+- 获取到的一段层级结构 XML 片段（用于排查权限或初始化问题）
+
 ## 使用 VS Code（构建与运行）
 
 准备工作：
