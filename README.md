@@ -77,6 +77,24 @@ dotnet build MarkOneNoteDown.sln
 - 选择 `MarkOneNoteDown.App` 为启动项目
 - 直接运行（F5）
 
+## 构建脚本
+
+项目自带脚本 `scripts/build_run_clean.ps1`，支持清理、构建、运行：
+
+```powershell
+# 清理 + 构建 + 运行（默认）
+powershell -ExecutionPolicy Bypass -File scripts\build_run_clean.ps1
+
+# 只清理
+powershell -ExecutionPolicy Bypass -File scripts\build_run_clean.ps1 -Action clean
+
+# 只构建
+powershell -ExecutionPolicy Bypass -File scripts\build_run_clean.ps1 -Action build
+
+# 只运行
+powershell -ExecutionPolicy Bypass -File scripts\build_run_clean.ps1 -Action run
+```
+
 ## 导出说明（当前实现）
 
 - 页面支持多选导出（在 Pages 列表中按住 Ctrl/Shift）。
@@ -92,7 +110,9 @@ dotnet build MarkOneNoteDown.sln
 
 ## PDF 支持（新增）
 
-当导出目录中包含 `*.pdf` 文件时，会自动读取并转换为 Markdown。当前实现为“文本提取”级别，后续可再升级为保留段落与标题结构的解析。
+当导出目录中包含 `*.pdf` 文件时，会进行文本提取并转换为 Markdown。
+
+注意：当前使用 iText（AGPL 商业授权要求）进行 PDF 文本提取，若用于闭源/商业项目请确保符合许可证。
 
 ## 配置（可选）
 

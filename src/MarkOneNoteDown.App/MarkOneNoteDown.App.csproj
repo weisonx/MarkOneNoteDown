@@ -16,13 +16,15 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>MarkOneNoteDown.App</RootNamespace>
 
+        <!-- Ensure all runtime deps are copied to output -->
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+
         <!-- App Options -->
         <UseRidGraph>true</UseRidGraph>
-        <Platforms>x86;x64;ARM64</Platforms>
+        <Platforms>x64</Platforms>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <PublishProfile>win-$(Platform).pubxml</PublishProfile>
-        <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &gt;= 8">win-x86;win-x64;win-arm64</RuntimeIdentifiers>
-        <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &lt; 8">win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
+        <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     </PropertyGroup>
 
     <ItemGroup>
@@ -52,7 +54,6 @@
         <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251106002" />
         <PackageReference Include="Microsoft.Web.WebView2" Version="1.*" />
         <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.*" />
-        <PackageReference Include="UglyToad.PdfPig.Core" Version="0.1.9-alpha001-patch1" />
 
         <Manifest Include="$(ApplicationManifest)" />
     </ItemGroup>

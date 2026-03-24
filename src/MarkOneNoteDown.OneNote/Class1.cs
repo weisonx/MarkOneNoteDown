@@ -5,7 +5,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MarkOneNoteDown.Core;
-using UglyToad.PdfPig;
+using iText.Kernel.Pdf;
+using iText.Kernel.Pdf.Canvas.Parser;
+using iText.Kernel.Pdf.Canvas.Parser.Listener;
 
 namespace MarkOneNoteDown.OneNote;
 
@@ -80,11 +82,14 @@ public sealed class HtmlExportClient : IOneNoteClient
 
     private static string ExtractPdfText(string path)
     {
-        using PdfDocument document = PdfDocument.Open(path);
+        using var reader = new PdfReader(path);
+        using var pdf = new PdfDocument(reader);
         var builder = new System.Text.StringBuilder();
-        foreach (var page in document.GetPages())
+
+        for (int i = 1; i <= pdf.GetNumberOfPages(); i++)
         {
-            string text = page.Text;
+            PdfPage page = pdf.GetPage(i);
+            string text = PdfTextExtractor.GetTextFromPage(page, new SimpleTextExtractionStrategy());
             if (string.IsNullOrWhiteSpace(text))
             {
                 continue;

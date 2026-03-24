@@ -93,6 +93,36 @@ public sealed class FileSystemExportWriter : IExportWriter
         string path = EnsureUniquePath(Path.Combine(outputDirectory, safeTitle + ".md"));
 
         await File.WriteAllTextAsync(path, page.Markdown, new UTF8Encoding(false), cancellationToken);
+        await CopyAssetsAsync(page.Assets, outputDirectory, cancellationToken);
+    }
+
+    private async Task CopyAssetsAsync(IReadOnlyList<AssetRef> assets, string outputDirectory, CancellationToken cancellationToken)
+    {
+        if (assets.Count == 0)
+        {
+            return;
+        }
+
+        string assetsDirectory = Path.Combine(outputDirectory, assetsFolderName);
+        Directory.CreateDirectory(assetsDirectory);
+
+        foreach (AssetRef asset in assets)
+        {
+            if (string.IsNullOrWhiteSpace(asset.SourceId) || !File.Exists(asset.SourceId))
+            {
+                continue;
+            }
+
+            string destination = Path.Combine(assetsDirectory, asset.FileName);
+            if (File.Exists(destination))
+            {
+                continue;
+            }
+
+            using FileStream sourceStream = File.OpenRead(asset.SourceId);
+            await using FileStream destStream = File.Create(destination);
+            await sourceStream.CopyToAsync(destStream, cancellationToken);
+        }
     }
 
     private static string MakeSafeFileName(string input)
