@@ -19,7 +19,7 @@ public partial class MainPage : Page
 {
     private readonly ObservableCollection<PageRef> pages = new();
     private readonly IOneNoteClient sourceClient = new HtmlExportClient();
-    private readonly IPageParser parser = new HtmlPageParser();
+    private readonly IPageParser parser = new UniversalPageParser();
     private readonly IExportWriter writer = new FileSystemExportWriter();
 
     public MainPage()
@@ -67,7 +67,7 @@ public partial class MainPage : Page
 
         try
         {
-            StatusText.Text = "Loading pages from HTML export...";
+            StatusText.Text = "Loading pages from export folder...";
             IReadOnlyList<PageRef> result = await sourceClient.GetPagesAsync(folder, CancellationToken.None);
             foreach (PageRef page in result)
             {

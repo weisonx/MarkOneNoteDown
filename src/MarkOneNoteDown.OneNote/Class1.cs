@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MarkOneNoteDown.Core;
+using UglyToad.PdfPig;
 
 namespace MarkOneNoteDown.OneNote;
 
@@ -45,7 +46,8 @@ public sealed class HtmlExportClient : IOneNoteClient
 
         var pages = Directory.EnumerateFiles(sectionId, "*.*", SearchOption.TopDirectoryOnly)
             .Where(path => path.EndsWith(".html", StringComparison.OrdinalIgnoreCase) ||
-                           path.EndsWith(".htm", StringComparison.OrdinalIgnoreCase))
+                           path.EndsWith(".htm", StringComparison.OrdinalIgnoreCase) ||
+                           path.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
             .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
             .Select(path => new PageRef(path, Path.GetFileNameWithoutExtension(path), sectionId))
             .ToList();
@@ -57,14 +59,45 @@ public sealed class HtmlExportClient : IOneNoteClient
     {
         if (string.IsNullOrWhiteSpace(pageId) || !File.Exists(pageId))
         {
-            return new PageContent(pageId ?? string.Empty, "Untitled", string.Empty);
+            return new PageContent(pageId ?? string.Empty, "Untitled", string.Empty, ContentKind.PlainText);
+        }
+
+        string extension = Path.GetExtension(pageId);
+        string title = Path.GetFileNameWithoutExtension(pageId);
+
+        if (extension.Equals(".pdf", StringComparison.OrdinalIgnoreCase))
+        {
+            string text = await Task.Run(() => ExtractPdfText(pageId), cancellationToken);
+            return new PageContent(pageId, title, text, ContentKind.PdfText);
         }
 
         string html = await File.ReadAllTextAsync(pageId, cancellationToken);
-        string title = Path.GetFileNameWithoutExtension(pageId);
-        return new PageContent(pageId, title, html);
+        return new PageContent(pageId, title, html, ContentKind.Html);
     }
 
     public Task<OneNoteDiagnostics> DiagnoseAsync(CancellationToken cancellationToken)
-        => Task.FromResult(new OneNoteDiagnostics(true, "HTML Export", null, null, null));
+        => Task.FromResult(new OneNoteDiagnostics(true, "HTML/PDF Export", null, null, null));
+
+    private static string ExtractPdfText(string path)
+    {
+        using PdfDocument document = PdfDocument.Open(path);
+        var builder = new System.Text.StringBuilder();
+        foreach (var page in document.GetPages())
+        {
+            string text = page.Text;
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                continue;
+            }
+
+            if (builder.Length > 0)
+            {
+                builder.AppendLine();
+            }
+
+            builder.AppendLine(text.Trim());
+        }
+
+        return builder.ToString().Trim();
+    }
 }

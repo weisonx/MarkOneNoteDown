@@ -90,6 +90,10 @@ dotnet build MarkOneNoteDown.sln
 3. 在应用中选择该导出文件夹作为 Source。
 4. 选择输出目录并导出为 Markdown。
 
+## PDF 支持（新增）
+
+当导出目录中包含 `*.pdf` 文件时，会自动读取并转换为 Markdown。当前实现为“文本提取”级别，后续可再升级为保留段落与标题结构的解析。
+
 ## 配置（可选）
 
 可在 `appsettings.json` 中配置默认源目录：

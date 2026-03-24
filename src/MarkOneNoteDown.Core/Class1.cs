@@ -15,7 +15,15 @@ public sealed record SectionRef(string Id, string Name, string NotebookId);
 
 public sealed record PageRef(string Id, string Name, string SectionId);
 
-public sealed record PageContent(string Id, string Title, string RawContent);
+public enum ContentKind
+{
+    OneNoteXml,
+    Html,
+    PlainText,
+    PdfText
+}
+
+public sealed record PageContent(string Id, string Title, string RawContent, ContentKind Kind);
 
 public sealed record AssetRef(string FileName, string SourceId);
 
@@ -173,5 +181,38 @@ public sealed class HtmlPageParser : IPageParser
         }
 
         return builder.ToString().Trim();
+    }
+}
+
+public sealed class UniversalPageParser : IPageParser
+{
+    private readonly HtmlPageParser htmlParser = new();
+
+    public MarkdownPage Parse(PageContent content)
+    {
+        if (content is null)
+        {
+            throw new ArgumentNullException(nameof(content));
+        }
+
+        return content.Kind switch
+        {
+            ContentKind.Html => htmlParser.Parse(content),
+            ContentKind.PdfText => ParsePlainText(content),
+            ContentKind.PlainText => ParsePlainText(content),
+            ContentKind.OneNoteXml => ParsePlainText(content),
+            _ => ParsePlainText(content)
+        };
+    }
+
+    private static MarkdownPage ParsePlainText(PageContent content)
+    {
+        string title = string.IsNullOrWhiteSpace(content.Title) ? "Untitled" : content.Title.Trim();
+        string body = string.IsNullOrWhiteSpace(content.RawContent)
+            ? "_(Empty page or unsupported content.)_"
+            : content.RawContent.Trim();
+
+        string markdown = $"# {title}\n\n{body}\n";
+        return new MarkdownPage(title, markdown, Array.Empty<AssetRef>());
     }
 }
