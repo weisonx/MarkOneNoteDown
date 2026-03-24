@@ -95,6 +95,26 @@ powershell -ExecutionPolicy Bypass -File scripts\build_run_clean.ps1 -Action bui
 powershell -ExecutionPolicy Bypass -File scripts\build_run_clean.ps1 -Action run
 ```
 
+## MSIX 打包（Release 安装包）
+
+使用脚本生成 MSIX（包含自签名证书、自动信任与打包）：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\package_msix.ps1
+```
+
+生成后的 MSIX 位于 `artifacts\msix\`。首次安装前需信任证书（脚本会提示 `.cer` 路径）：
+
+```powershell
+Import-Certificate -FilePath "certs\MarkOneNoteDown.cer" -CertStoreLocation Cert:\CurrentUser\TrustedPeople
+```
+
+你也可以自定义输出目录与证书路径（并关闭自动信任）：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\package_msix.ps1 -OutputDir "artifacts\msix" -CertPath "certs\MarkOneNoteDown.pfx" -TrustCertificate:$false
+```
+
 ## 导出说明（当前实现）
 
 - 页面支持多选导出（在 Pages 列表中按住 Ctrl/Shift）。
