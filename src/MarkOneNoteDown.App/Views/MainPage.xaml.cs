@@ -17,120 +17,65 @@ namespace MarkOneNoteDown.App.Views;
 
 public partial class MainPage : Page
 {
-    private readonly ObservableCollection<NotebookRef> notebooks = new();
-    private readonly ObservableCollection<SectionRef> sections = new();
     private readonly ObservableCollection<PageRef> pages = new();
-    private readonly IOneNoteClient oneNoteClient = new OneNoteComClient();
-    private readonly IPageParser parser = new BasicPageParser();
+    private readonly IOneNoteClient sourceClient = new HtmlExportClient();
+    private readonly IPageParser parser = new HtmlPageParser();
     private readonly IExportWriter writer = new FileSystemExportWriter();
 
     public MainPage()
     {
         InitializeComponent();
 
-        NotebooksList.ItemsSource = notebooks;
-        SectionsList.ItemsSource = sections;
         PagesList.ItemsSource = pages;
 
-        _ = LoadNotebooksAsync();
-    }
-
-    private async Task LoadNotebooksAsync()
-    {
-        try
+        SourcePathBox.Text = App.Settings.SourceFolder ?? string.Empty;
+        if (!string.IsNullOrWhiteSpace(SourcePathBox.Text))
         {
-            StatusText.Text = "Loading notebooks...";
-            notebooks.Clear();
-            sections.Clear();
-            pages.Clear();
-
-            IReadOnlyList<NotebookRef> result = await oneNoteClient.GetNotebooksAsync(CancellationToken.None);
-            string? notebookFilter = NormalizeFilter(App.Settings.NotebookId);
-            if (!string.IsNullOrWhiteSpace(notebookFilter))
-            {
-                result = result.Where(n => string.Equals(n.Id, notebookFilter, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-
-            foreach (NotebookRef notebook in result)
-            {
-                notebooks.Add(notebook);
-            }
-
-            if (notebooks.Count == 0 && !string.IsNullOrWhiteSpace(notebookFilter))
-            {
-                Log($"Notebook filter did not match: {notebookFilter}");
-            }
-
-            StatusText.Text = $"Loaded {notebooks.Count} notebooks.";
-            Log($"Loaded {notebooks.Count} notebooks.");
-        }
-        catch (Exception ex)
-        {
-            StatusText.Text = "Failed to load notebooks.";
-            Log($"Error loading notebooks: {ex.Message}");
+            _ = LoadPagesAsync(SourcePathBox.Text);
         }
     }
 
-    private async void OnNotebookSelectionChanged(object sender, SelectionChangedEventArgs e)
+    private async void OnChooseSourceClicked(object sender, RoutedEventArgs e)
     {
-        sections.Clear();
+        StorageFolder? folder = await PickFolderAsync();
+        if (folder is null)
+        {
+            Log("Source picker canceled.");
+            return;
+        }
+
+        SourcePathBox.Text = folder.Path;
+        StatusText.Text = $"Source folder: {folder.Path}";
+        await LoadPagesAsync(folder.Path);
+    }
+
+    private async void OnLoadPagesClicked(object sender, RoutedEventArgs e)
+    {
+        await LoadPagesAsync(SourcePathBox.Text);
+    }
+
+    private async Task LoadPagesAsync(string? sourceFolder)
+    {
         pages.Clear();
-
-        if (NotebooksList.SelectedItem is not NotebookRef notebook)
+        string folder = sourceFolder?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(folder))
         {
+            StatusText.Text = "Source folder is empty.";
+            Log("Source folder is empty.");
             return;
         }
 
         try
         {
-            StatusText.Text = $"Loading sections for {notebook.Name}...";
-            IReadOnlyList<SectionRef> result = await oneNoteClient.GetSectionsAsync(notebook.Id, CancellationToken.None);
-            string? sectionFilter = NormalizeFilter(App.Settings.SectionId);
-            if (!string.IsNullOrWhiteSpace(sectionFilter))
-            {
-                result = result.Where(s => string.Equals(s.Id, sectionFilter, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-
-            foreach (SectionRef section in result)
-            {
-                sections.Add(section);
-            }
-
-            if (sections.Count == 0 && !string.IsNullOrWhiteSpace(sectionFilter))
-            {
-                Log($"Section filter did not match: {sectionFilter}");
-            }
-
-            StatusText.Text = $"Loaded {sections.Count} sections.";
-            Log($"Notebook selected: {notebook.Name}");
-        }
-        catch (Exception ex)
-        {
-            StatusText.Text = "Failed to load sections.";
-            Log($"Error loading sections: {ex.Message}");
-        }
-    }
-
-    private async void OnSectionSelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        pages.Clear();
-
-        if (SectionsList.SelectedItem is not SectionRef section)
-        {
-            return;
-        }
-
-        try
-        {
-            StatusText.Text = $"Loading pages for {section.Name}...";
-            IReadOnlyList<PageRef> result = await oneNoteClient.GetPagesAsync(section.Id, CancellationToken.None);
+            StatusText.Text = "Loading pages from HTML export...";
+            IReadOnlyList<PageRef> result = await sourceClient.GetPagesAsync(folder, CancellationToken.None);
             foreach (PageRef page in result)
             {
                 pages.Add(page);
             }
 
             StatusText.Text = $"Loaded {pages.Count} pages.";
-            Log($"Section selected: {section.Name}");
+            Log($"Loaded {pages.Count} pages from export folder.");
         }
         catch (Exception ex)
         {
@@ -139,44 +84,9 @@ public partial class MainPage : Page
         }
     }
 
-    private async void OnRefreshClicked(object sender, RoutedEventArgs e)
-    {
-        await LoadNotebooksAsync();
-    }
-
-    private async void OnDiagnosticsClicked(object sender, RoutedEventArgs e)
-    {
-        StatusText.Text = "Running diagnostics...";
-        try
-        {
-            OneNoteDiagnostics diag = await oneNoteClient.DiagnoseAsync(CancellationToken.None);
-            if (diag.CanCreateCom)
-            {
-                Log($"OneNote COM OK. Version: {diag.Version ?? "unknown"}");
-                if (!string.IsNullOrWhiteSpace(diag.HierarchySample))
-                {
-                    Log($"Hierarchy sample: {diag.HierarchySample}");
-                }
-                StatusText.Text = "Diagnostics OK.";
-            }
-            else
-            {
-                string hresult = diag.HResult.HasValue ? $" (0x{diag.HResult.Value:X8})" : string.Empty;
-                Log($"OneNote COM failed{hresult}: {diag.ErrorMessage}");
-                StatusText.Text = "Diagnostics failed.";
-            }
-        }
-        catch (Exception ex)
-        {
-            string hresult = ex.HResult != 0 ? $" (0x{ex.HResult:X8})" : string.Empty;
-            Log($"Diagnostics error{hresult}: {ex.Message}");
-            StatusText.Text = "Diagnostics error.";
-        }
-    }
-
     private async void OnChooseOutputClicked(object sender, RoutedEventArgs e)
     {
-        StorageFolder? folder = await PickOutputFolderAsync();
+        StorageFolder? folder = await PickFolderAsync();
         if (folder is null)
         {
             Log("Output picker canceled.");
@@ -192,7 +102,7 @@ public partial class MainPage : Page
         string outputDirectory = OutputPathBox.Text.Trim();
         if (string.IsNullOrWhiteSpace(outputDirectory))
         {
-            StorageFolder? folder = await PickOutputFolderAsync();
+            StorageFolder? folder = await PickFolderAsync();
             if (folder is null)
             {
                 Log("Export canceled (no output directory).");
@@ -214,7 +124,7 @@ public partial class MainPage : Page
             return;
         }
 
-        var pipeline = new ExportPipeline(oneNoteClient, parser, writer);
+        var pipeline = new ExportPipeline(sourceClient, parser, writer);
         var options = new ExportOptions(
             outputDirectory,
             IncludeAttachmentsCheckBox.IsChecked == true,
@@ -254,7 +164,7 @@ public partial class MainPage : Page
         return pages.ToList();
     }
 
-    private static async Task<StorageFolder?> PickOutputFolderAsync()
+    private static async Task<StorageFolder?> PickFolderAsync()
     {
         if (App.MainWindow is null)
         {
@@ -268,12 +178,6 @@ public partial class MainPage : Page
         InitializeWithWindow.Initialize(picker, hwnd);
 
         return await picker.PickSingleFolderAsync();
-    }
-
-    private static string? NormalizeFilter(string? value)
-    {
-        string? trimmed = value?.Trim();
-        return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed;
     }
 
     private void Log(string message)

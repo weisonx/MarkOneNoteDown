@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using HtmlAgilityPack;
 
 namespace MarkOneNoteDown.Core;
 
@@ -100,5 +101,77 @@ public sealed class BasicPageParser : IPageParser
         {
             return string.Empty;
         }
+    }
+}
+
+public sealed class HtmlPageParser : IPageParser
+{
+    public MarkdownPage Parse(PageContent content)
+    {
+        if (content is null)
+        {
+            throw new ArgumentNullException(nameof(content));
+        }
+
+        string title = string.IsNullOrWhiteSpace(content.Title) ? "Untitled" : content.Title.Trim();
+        string body = ExtractHtmlText(content.RawContent);
+
+        if (string.IsNullOrWhiteSpace(body))
+        {
+            body = "_(Empty page or unsupported content.)_";
+        }
+
+        string markdown = $"# {title}\n\n{body}\n";
+        return new MarkdownPage(title, markdown, Array.Empty<AssetRef>());
+    }
+
+    private static string ExtractHtmlText(string html)
+    {
+        if (string.IsNullOrWhiteSpace(html))
+        {
+            return string.Empty;
+        }
+
+        var doc = new HtmlDocument();
+        doc.LoadHtml(html);
+
+        string title = doc.DocumentNode.SelectSingleNode("//title")?.InnerText?.Trim() ?? string.Empty;
+        HtmlNode? bodyNode = doc.DocumentNode.SelectSingleNode("//body") ?? doc.DocumentNode;
+        string text = NormalizeWhitespace(bodyNode.InnerText);
+
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return string.Empty;
+        }
+
+        if (!string.IsNullOrWhiteSpace(title) && text.StartsWith(title, StringComparison.OrdinalIgnoreCase))
+        {
+            text = text.Substring(title.Length).TrimStart();
+        }
+
+        return text;
+    }
+
+    private static string NormalizeWhitespace(string value)
+    {
+        var builder = new StringBuilder(value.Length);
+        bool previousWasWhitespace = false;
+        foreach (char ch in value)
+        {
+            if (char.IsWhiteSpace(ch))
+            {
+                if (!previousWasWhitespace)
+                {
+                    builder.Append(' ');
+                    previousWasWhitespace = true;
+                }
+                continue;
+            }
+
+            previousWasWhitespace = false;
+            builder.Append(ch);
+        }
+
+        return builder.ToString().Trim();
     }
 }

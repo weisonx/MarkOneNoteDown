@@ -22,31 +22,22 @@
 
         <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Spacing="6">
             <TextBlock Style="{StaticResource TitleText}" Text="MarkOneNoteDown" />
-            <TextBlock Style="{StaticResource SubtitleText}" Text="OneNote to Markdown export pipeline (WinUI 3)" />
+            <TextBlock Style="{StaticResource SubtitleText}" Text="OneNote HTML export to Markdown (WinUI 3)" />
         </StackPanel>
 
         <Border Grid.Row="1" Grid.Column="0" Background="{StaticResource CardBrush}" CornerRadius="10" Padding="16">
             <StackPanel Spacing="12">
-                <TextBlock FontSize="16" FontWeight="SemiBold" Text="Source" />
-                <TextBlock Text="Notebooks" />
-                <ListView x:Name="NotebooksList"
-                          DisplayMemberPath="Name"
-                          Height="120"
-                          SelectionChanged="OnNotebookSelectionChanged" />
-                <TextBlock Text="Sections" />
-                <ListView x:Name="SectionsList"
-                          DisplayMemberPath="Name"
-                          Height="120"
-                          SelectionChanged="OnSectionSelectionChanged" />
+                <TextBlock FontSize="16" FontWeight="SemiBold" Text="Source (HTML Export Folder)" />
+                <TextBox x:Name="SourcePathBox" PlaceholderText="Select OneNote HTML export folder" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button Click="OnChooseSourceClicked" Content="Choose Source" Style="{StaticResource SecondaryAction}" />
+                    <Button Click="OnLoadPagesClicked" Content="Load Pages" Style="{StaticResource SecondaryAction}" />
+                </StackPanel>
                 <TextBlock Text="Pages (Ctrl/Shift to multi-select)" />
                 <ListView x:Name="PagesList"
                           DisplayMemberPath="Name"
-                          Height="120"
+                          Height="260"
                           SelectionMode="Multiple" />
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <Button Click="OnRefreshClicked" Content="Refresh" Style="{StaticResource SecondaryAction}" />
-                    <Button Click="OnDiagnosticsClicked" Content="Diagnostics" Style="{StaticResource SecondaryAction}" />
-                </StackPanel>
             </StackPanel>
         </Border>
 

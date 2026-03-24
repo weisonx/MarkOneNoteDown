@@ -83,28 +83,24 @@ dotnet build MarkOneNoteDown.sln
 - 若未选中任何页面，则默认导出当前已加载的全部页面。
 - Markdown 为基础文本抽取版本（后续会扩展标题/列表/表格/图片映射）。
 
-## OneNote 来源过滤（可选）
+## OneNote HTML 导出流程（推荐）
 
-可在 `appsettings.json` 中配置过滤范围：
+1. 在 OneNote 桌面版选择笔记本或分区。
+2. 使用 OneNote 的“导出”为 HTML（生成一个包含多个 `*.html` 的文件夹）。
+3. 在应用中选择该导出文件夹作为 Source。
+4. 选择输出目录并导出为 Markdown。
+
+## 配置（可选）
+
+可在 `appsettings.json` 中配置默认源目录：
 
 ```json
 {
-  "NotebookId": "",
-  "SectionId": ""
+  "SourceFolder": ""
 }
 ```
 
-- `NotebookId` 非空时，仅加载匹配该 ID 的笔记本。
-- `SectionId` 非空时，仅加载匹配该 ID 的分区。
-- 留空表示不过滤。
-
-## OneNote 诊断
-
-点击主界面的 `Diagnostics` 按钮可以检查：
-
-- 是否能创建 OneNote COM
-- OneNote 版本号
-- 获取到的一段层级结构 XML 片段（用于排查权限或初始化问题）
+- `SourceFolder` 非空时启动自动加载该目录的 HTML 页面。
 
 ## 使用 VS Code（构建与运行）
 
