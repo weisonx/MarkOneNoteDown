@@ -184,5 +184,9 @@ public partial class MainPage : Page
     {
         string line = $"{DateTime.Now:HH:mm:ss} {message}";
         LogList.Items.Add(line);
+        if (LogList.Items.Count > 0)
+        {
+            LogList.ScrollIntoView(LogList.Items[LogList.Items.Count - 1]);
+        }
     }
 }
