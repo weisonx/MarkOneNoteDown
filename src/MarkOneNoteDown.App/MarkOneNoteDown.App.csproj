@@ -7,7 +7,7 @@
 
         <!-- WinUI 3 -->
         <UseWinUI>true</UseWinUI>
-        <EnableMsixTooling>true</EnableMsixTooling>
+        <EnableMsixTooling>false</EnableMsixTooling>
         <WindowsPackageType>None</WindowsPackageType>
 
         <!-- Project Options -->
@@ -23,7 +23,6 @@
         <UseRidGraph>true</UseRidGraph>
         <Platforms>x64</Platforms>
         <ApplicationManifest>app.manifest</ApplicationManifest>
-        <PublishProfile>win-$(Platform).pubxml</PublishProfile>
         <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     </PropertyGroup>
 
@@ -58,26 +57,9 @@
         <Manifest Include="$(ApplicationManifest)" />
     </ItemGroup>
 
-    <!-- 
-        Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
-        Tools extension to be activated for this project even if the Windows App SDK Nuget
-        package has not yet been restored.
-    -->
-    <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-        <ProjectCapability Include="Msix" />
-    </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\MarkOneNoteDown.Core\MarkOneNoteDown.Core.csproj" />
       <ProjectReference Include="..\MarkOneNoteDown.OneNote\MarkOneNoteDown.OneNote.csproj" />
       <ProjectReference Include="..\MarkOneNoteDown.Export\MarkOneNoteDown.Export.csproj" />
     </ItemGroup>
-
-    <!-- 
-        Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution 
-        Explorer "Package and Publish" context menu entry to be enabled for this project even if 
-        the Windows App SDK Nuget package has not yet been restored.
-    -->
-    <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-        <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
-    </PropertyGroup>
 </Project>
