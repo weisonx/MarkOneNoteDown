@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -16,6 +17,9 @@ public partial class App : Application
     {
         InitializeComponent();
         LoadSettings();
+
+        UnhandledException += OnUnhandledException;
+        AppDomain.CurrentDomain.UnhandledException += OnAppDomainUnhandledException;
     }
 
     protected override void OnLaunched(LaunchActivatedEventArgs e)
@@ -48,4 +52,31 @@ public partial class App : Application
         config.Bind(settings);
         Settings = settings;
     }
+
+    private void OnUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+    {
+        LogFatal("Unhandled UI exception", e.Exception);
+        e.Handled = true;
+    }
+
+    private static void OnAppDomainUnhandledException(object? sender, System.UnhandledExceptionEventArgs e)
+    {
+        var ex = e.ExceptionObject as Exception ?? new Exception("Unknown exception");
+        LogFatal("Unhandled exception", ex);
+    }
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern int MessageBoxW(IntPtr hWnd, string text, string caption, uint type);
+
+    private static void LogFatal(string message, Exception ex)
+    {
+        var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MarkOneNoteDown");
+        Directory.CreateDirectory(logDir);
+        var logPath = Path.Combine(logDir, "startup.log");
+        var details = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {message}{Environment.NewLine}{ex}{Environment.NewLine}";
+        File.AppendAllText(logPath, details);
+        MessageBoxW(IntPtr.Zero, $"{message}\n\n{ex.Message}\n\nLog: {logPath}", "MarkOneNoteDown", 0x00000010);
+    }
 }
+
+
