@@ -103,16 +103,34 @@ powershell -ExecutionPolicy Bypass -File scripts\build_run_clean.ps1 -Action run
 powershell -ExecutionPolicy Bypass -File scripts\package_msix.ps1
 ```
 
+打包后自动安装：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\package_msix.ps1 -InstallAfter
+```
+
 生成后的 MSIX 位于 `artifacts\msix\`。首次安装前需信任证书（脚本会提示 `.cer` 路径）：
 
 ```powershell
 Import-Certificate -FilePath "certs\MarkOneNoteDown.cer" -CertStoreLocation Cert:\CurrentUser\TrustedPeople
 ```
 
+若出现错误 `0x800B010A`（证书链不受信任），请同时导入到 `Trusted Root`：
+
+```powershell
+Import-Certificate -FilePath "certs\MarkOneNoteDown.cer" -CertStoreLocation Cert:\CurrentUser\Root
+```
+
 你也可以自定义输出目录与证书路径（并关闭自动信任）：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\package_msix.ps1 -OutputDir "artifacts\msix" -CertPath "certs\MarkOneNoteDown.pfx" -TrustCertificate:$false
+```
+
+默认会清空输出目录后重新打包，如需保留旧包可关闭清理：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\package_msix.ps1 -CleanOutput:$false
 ```
 
 ## 导出说明（当前实现）
